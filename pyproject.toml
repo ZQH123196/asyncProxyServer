@@ -1,0 +1,26 @@
+[project]
+name = "async-tts-proxy"
+version = "0.1.0"
+description = "A lightweight asynchronous proxy for SGLang-Omni TTS service using FastAPI and SQLite."
+requires-python = ">=3.10"
+# 核心业务依赖。soundfile 用于读取 WAV 时长并执行 TTS 质量校验；
+# libopus 编码依赖外部 ffmpeg 二进制（已在系统 PATH 中），不在 PyPI 范畴。
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "requests>=2.31.0",
+    "pydantic>=2.6.0",
+    "soundfile>=0.12.0",
+    "python-dotenv>=1.0.1",      # 启动期从 .env 读取 HOST/PORT/SGLANG_URL 等配置
+]
+
+# 告诉 uv：这是一个单纯的应用/脚本，不要把它当成库去打包！
+[tool.uv]
+package = false
+
+# 开发依赖
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "pytest>=8.0.0",
+]
