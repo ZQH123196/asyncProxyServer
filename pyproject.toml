@@ -2,25 +2,32 @@
 name = "async-tts-proxy"
 version = "0.1.0"
 description = "A lightweight asynchronous proxy for SGLang-Omni TTS service using FastAPI and SQLite."
-requires-python = ">=3.10"
-# 核心业务依赖。soundfile 用于读取 WAV 时长并执行 TTS 质量校验；
-# libopus 编码依赖外部 ffmpeg 二进制（已在系统 PATH 中），不在 PyPI 范畴。
+requires-python = ">=3.11"
+
+# ===================== 版本纪律 =====================
+# 直接依赖一律写死 ==，整棵依赖树由 uv.lock 钉死。
+# 装环境只允许 `uv sync --frozen`
+# 禁止裸跑 `uv pip install <包名>`：那会绕过锁、静默改版本。
+# 升级流程见 README.md「依赖升级」，禁止手改本节版本号后不回跑 uv lock。
+# =================================================
+# libopus 编码依赖外部 ffmpeg 二进制（不在 PyPI 范畴），
+# 启动期会校验其存在且带 libopus 编码器，见 env_config.py。
 dependencies = [
-    "fastapi>=0.110.0",
-    "uvicorn[standard]>=0.28.0",
-    "requests>=2.31.0",
-    "pydantic>=2.6.0",
-    "soundfile>=0.12.0",
-    "python-dotenv>=1.0.1",      # 启动期从 .env 读取 HOST/PORT/SGLANG_URL 等配置
+    "fastapi==0.143.0",
+    "uvicorn[standard]==0.54.0",
+    "requests==2.34.2",
+    "pydantic==2.12.5",
+    "soundfile==0.14.0",         # 读取 WAV 时长并执行 TTS 质量校验
+    "python-dotenv==1.2.4",      # 启动期从 .env 读取 HOST/PORT/SGLANG_URL 等配置
 ]
 
-# 告诉 uv：这是一个单纯的应用/脚本，不要把它当成库去打包！
+[dependency-groups]
+dev = ["pytest==9.0.2", "black==26.3.0"]
+
 [tool.uv]
+# 单纯的应用/脚本，不要把它当成库去打包
 package = false
 
-# 开发依赖
-[dependency-groups]
-dev = [
-    "black>=24.0.0",
-    "pytest>=8.0.0",
-]
+[tool.pytest.ini_options]
+testpaths = ["test"]
+python_files = ["test_*.py"]
